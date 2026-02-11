@@ -3,8 +3,8 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  Automates Antimatter Dimensions including all 12 Normal Challenges
-// @updateURL    https://raw.githubusercontent.com/YOUR_USERNAME/antquasar/main/AntiQuasar.user.js
-// @downloadURL  https://raw.githubusercontent.com/YOUR_USERNAME/antquasar/main/AntiQuasar.user.js
+// @updateURL    https://raw.githubusercontent.com/miguelaguiar01/antiquasar/main/AntiQuasar.user.js
+// @downloadURL  https://raw.githubusercontent.com/miguelaguiar01/antiquasar/main/AntiQuasar.user.js
 // @license      MIT
 // @match        https://ivark.github.io/
 // @match        https://ivark.github.io/AntimatterDimensions/
