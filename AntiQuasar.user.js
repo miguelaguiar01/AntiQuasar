@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name         AntiQuasar
 // @namespace    http://tampermonkey.net/
-// @version      2.4
-// @author       MAguiar
+// @version      0.1
 // @description  Automates Antimatter Dimensions including all 12 Normal Challenges
-// @updateURL    https://raw.githubusercontent.com/miguelaguiar01/antiquasar/main/AntiQuasar.user.js
-// @downloadURL  https://raw.githubusercontent.com/miguelaguiar01/antiquasar/main/AntiQuasar.user.js
+// @updateURL    https://raw.githubusercontent.com/YOUR_USERNAME/antquasar/main/AntiQuasar.user.js
+// @downloadURL  https://raw.githubusercontent.com/YOUR_USERNAME/antquasar/main/AntiQuasar.user.js
 // @license      MIT
 // @match        https://ivark.github.io/
 // @match        https://ivark.github.io/AntimatterDimensions/
@@ -18,7 +17,7 @@
 (function () {
   "use strict";
 
-  var VERSION = "2.3";
+  var VERSION = "0.1";
 
   function waitForGame(callback) {
     var interval = setInterval(function () {
@@ -554,7 +553,41 @@
       return match ? parseFloat(match[1]) : 1;
     }
 
+    function parseIPmin(str) {
+      // Parses "2.76e4" style numbers from button text
+      var match = str.match(/([\d.]+)e(\d+)/);
+      if (!match) return 0;
+      return parseFloat(match[1]) * Math.pow(10, parseInt(match[2]));
+    }
+
     function doCrunch() {
+      // Break infinity mode: .o-infinity-button without --unavailable
+      var infBtn = document.querySelector(
+        ".o-infinity-button:not(.o-infinity-button--unavailable)",
+      );
+      if (infBtn) {
+        var text = infBtn.textContent;
+        var currentMatch = text.match(/Current:\s*([\d.]+e[\d+]+)\s*IP\/min/);
+        var peakMatch = text.match(/Peak:\s*([\d.]+e[\d+]+)\s*IP\/min/);
+        if (currentMatch && peakMatch) {
+          var current = parseIPmin(currentMatch[1]);
+          var peak = parseIPmin(peakMatch[1]);
+          // Only crunch when:
+          // 1. Current IP/min has dropped below Peak (we're past optimal)
+          // 2. Tickspeed is no longer affordable (we've hit the ceiling for this run)
+          var tsBtn = document.querySelector(".tickspeed-btn");
+          var tsAffordable =
+            tsBtn &&
+            !tsBtn.classList.contains("o-primary-btn--disabled") &&
+            !tsBtn.disabled;
+          if (peak > 0 && current < peak && !tsAffordable) {
+            infBtn.click();
+            return true;
+          }
+        }
+        return false;
+      }
+      // Old mode: big crunch button
       return clickBtn(".o-big-crunch-btn");
     }
 
@@ -1123,7 +1156,31 @@
       if (p && p.challenge.normal.current > 0)
         html += "⚔ C" + p.challenge.normal.current + " active<br>";
 
-      // IP/min from last 10 runs
+      // Break infinity mode — show live Current vs Peak IP/min from the button
+      var infBtn = document.querySelector(
+        ".o-infinity-button:not(.o-infinity-button--unavailable)",
+      );
+      if (infBtn) {
+        var infText = infBtn.textContent;
+        var curMatch = infText.match(/Current:\s*([\d.]+e[\d+]+)\s*IP\/min/);
+        var peakMatch = infText.match(/Peak:\s*([\d.]+e[\d+]+)\s*IP\/min/);
+        if (curMatch && peakMatch) {
+          var curVal = parseIPmin(curMatch[1]);
+          var peakVal = parseIPmin(peakMatch[1]);
+          var ratio = peakVal > 0 ? ((curVal / peakVal) * 100).toFixed(0) : 100;
+          var color = curVal >= peakVal ? "#44ffaa" : "#ffdd88";
+          html += "⚡ Current: " + curMatch[1] + " IP/min<br>";
+          html +=
+            '<span style="color:' +
+            color +
+            '">▲ Peak: ' +
+            peakMatch[1] +
+            " IP/min (" +
+            ratio +
+            "%)</span><br>";
+        }
+      }
+
       // recentInfinities entries: [time_ms, realTime_ms, ip, ...]
       if (p && p.records && p.records.recentInfinities) {
         var runs = p.records.recentInfinities;
