@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AntiQuasar
 // @namespace    http://tampermonkey.net/
-// @version      2.3
+// @version      2.4
 // @description  Automates Antimatter Dimensions including all 12 Normal Challenges
 // @updateURL    https://raw.githubusercontent.com/miguelaguiar01/antiquasar/main/AntiQuasar.user.js
 // @downloadURL  https://raw.githubusercontent.com/miguelaguiar01/antiquasar/main/AntiQuasar.user.js
